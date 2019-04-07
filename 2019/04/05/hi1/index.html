@@ -7,17 +7,17 @@
   
   <title>hi1 | 淡雅暮</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="hi，这是我的博客 记录点点滴滴。">
+  <meta name="description" content="hi，这是我的博客 记录点点滴滴。 Given a string, find the length of the longest substring without repeating characters. Example 1: 123Input: &amp;quot;abcabcbb&amp;quot;Output: 3 Explanation: The answer is &amp;quot;abc&amp;quot;,">
 <meta property="og:type" content="article">
 <meta property="og:title" content="hi1">
 <meta property="og:url" content="http://yoursite.com/2019/04/05/hi1/index.html">
 <meta property="og:site_name" content="淡雅暮">
-<meta property="og:description" content="hi，这是我的博客 记录点点滴滴。">
+<meta property="og:description" content="hi，这是我的博客 记录点点滴滴。 Given a string, find the length of the longest substring without repeating characters. Example 1: 123Input: &amp;quot;abcabcbb&amp;quot;Output: 3 Explanation: The answer is &amp;quot;abc&amp;quot;,">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-04-05T07:53:26.297Z">
+<meta property="og:updated_time" content="2019-04-07T09:13:38.174Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hi1">
-<meta name="twitter:description" content="hi，这是我的博客 记录点点滴滴。">
+<meta name="twitter:description" content="hi，这是我的博客 记录点点滴滴。 Given a string, find the length of the longest substring without repeating characters. Example 1: 123Input: &amp;quot;abcabcbb&amp;quot;Output: 3 Explanation: The answer is &amp;quot;abc&amp;quot;,">
   
     <link rel="alternate" href="/atom.xml" title="淡雅暮" type="application/atom+xml">
   
@@ -92,11 +92,21 @@
       
         <p>hi，这是我的博客</p>
 <p>记录点点滴滴。</p>
-
+<p>Given a string, find the length of the <strong>longest substring</strong> without repeating characters.</p>
+<p><strong>Example 1:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;abcabcbb&quot;</span><br><span class="line">Output: 3 </span><br><span class="line">Explanation: The answer is &quot;abc&quot;, with the length of 3.</span><br></pre></td></tr></table></figure>
+<p><strong>Example 2:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;bbbbb&quot;</span><br><span class="line">Output: 1</span><br><span class="line">Explanation: The answer is &quot;b&quot;, with the length of 1.</span><br></pre></td></tr></table></figure>
+<p><strong>Example 3:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Input: &quot;pwwkew&quot;</span><br><span class="line">Output: 3</span><br><span class="line">Explanation: The answer is &quot;wke&quot;, with the length of 3. </span><br><span class="line">             Note that the answer must be a substring, &quot;pwke&quot; is a subsequence and not a substring.</span><br></pre></td></tr></table></figure>
+<p>Solution 1: Long version (easy to understand)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int lengthOfLongestSubstring(string s) &#123;</span><br><span class="line">        int NOT_FOUND = -1;</span><br><span class="line">        int longest = 0;</span><br><span class="line">        int dupAt[128];</span><br><span class="line">        for (int i = 0; i &lt; 128; i++)</span><br><span class="line">            dupAt[i] = NOT_FOUND;</span><br><span class="line">        </span><br><span class="line">        for (int i = 0, j = 0; j &lt; s.size(); j++) &#123;</span><br><span class="line">            if (dupAt[s[j]] == NOT_FOUND) &#123;</span><br><span class="line">                dupAt[s[j]] = j;</span><br><span class="line">                longest = max(longest, j - i + 1);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                // Reset dupAt range [i, dupAt[j]) to NOT FOUND</span><br><span class="line">                while (i &lt; dupAt[s[j]]) &#123;</span><br><span class="line">                    dupAt[s[i]] = NOT_FOUND;</span><br><span class="line">                    i++;</span><br><span class="line">                &#125;</span><br><span class="line">                i = dupAt[s[i]] + 1;</span><br><span class="line">                dupAt[s[j]] = j; // update new dup position</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        return longest;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>Solution 2: Short version</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int lengthOfLongestSubstring(string s) &#123;</span><br><span class="line">        int longest = 0;</span><br><span class="line">        int dupAt[128];</span><br><span class="line">        for (int i = 0; i &lt; 128; i++)</span><br><span class="line">            dupAt[i] = -1;</span><br><span class="line">        </span><br><span class="line">        for (int i = 0, j = 0; j &lt; s.size(); j++) &#123;</span><br><span class="line">            i = max(i, dupAt[s[j]] + 1);</span><br><span class="line">            longest = max(longest, j - i + 1);</span><br><span class="line">            dupAt[s[j]] = j;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        return longest;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/05/hi1/" data-id="cju3rx44h0000f8obrw95yg1q" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/05/hi1/" data-id="cju6pswpy0000lsobaa8im8nz" class="article-share-link">Share</a>
       
       
     </footer>
