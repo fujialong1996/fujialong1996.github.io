@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>淡雅暮</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="#对value-based的RL算法的一些看法 基于值函数的强化学习方法是我接触最早的一类强化学习方法，包括q-learning，DQN或DDPG都是基于值函数的方法。这些方法的主要思路是建立模型（表格或神经网络）去拟合状态动作值函数（状态动作的长期回报），根据模型输出的值函数选择相应的动作选择或进行梯度优化。 但是，value-based强化学习方法的训练优化却存在一些问题，因为这些模型的训练都">
+<meta property="og:type" content="article">
+<meta property="og:title" content="淡雅暮">
+<meta property="og:url" content="http://yoursite.com/2019/12/03/valuebased/index.html">
+<meta property="og:site_name" content="淡雅暮">
+<meta property="og:description" content="#对value-based的RL算法的一些看法 基于值函数的强化学习方法是我接触最早的一类强化学习方法，包括q-learning，DQN或DDPG都是基于值函数的方法。这些方法的主要思路是建立模型（表格或神经网络）去拟合状态动作值函数（状态动作的长期回报），根据模型输出的值函数选择相应的动作选择或进行梯度优化。 但是，value-based强化学习方法的训练优化却存在一些问题，因为这些模型的训练都">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="d:/Blog/hexo/source/_posts/1.png">
+<meta property="og:updated_time" content="2019-12-03T14:41:15.101Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="淡雅暮">
+<meta name="twitter:description" content="#对value-based的RL算法的一些看法 基于值函数的强化学习方法是我接触最早的一类强化学习方法，包括q-learning，DQN或DDPG都是基于值函数的方法。这些方法的主要思路是建立模型（表格或神经网络）去拟合状态动作值函数（状态动作的长期回报），根据模型输出的值函数选择相应的动作选择或进行梯度优化。 但是，value-based强化学习方法的训练优化却存在一些问题，因为这些模型的训练都">
+<meta name="twitter:image" content="d:/Blog/hexo/source/_posts/1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="淡雅暮" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">淡雅暮</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">life is struggle</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-valuebased" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/03/valuebased/" class="article-date">
+  <time datetime="2019-12-03T14:39:01.720Z" itemprop="datePublished">2019-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#对value-based的RL算法的一些看法</p>
+<p>基于值函数的强化学习方法是我接触最早的一类强化学习方法，包括q-learning，DQN或DDPG都是基于值函数的方法。这些方法的主要思路是建立模型（表格或神经网络）去拟合状态动作值函数（状态动作的长期回报），根据模型输出的值函数选择相应的动作选择或进行梯度优化。</p>
+<p>但是，value-based强化学习方法的训练优化却存在一些问题，因为这些模型的训练都是使用时间差分方法去进行更新。时间差分法（TD法）是一种结合了蒙特卡洛法和动态规划的方法，用对当前状态动作值函数的估计来更新当前的状态动作值函数。更新方式一般为：<br>$$<br>q_t(s,a)=q_{t-1}(s,a)+\alpha[q_{target}(s,a)-q_{t-1}(s,a)]<br>$$<br>其中$q_{target}(s,a)$为对当前状态动作值函数的估计，可以展开为：<br>$$<br>q_{target}(s,a)=r(s’)+\gamma q(s’,a’)<br>$$<br>其中$r(s’)$是在当前状态s下做完动作a后转移到下一个状态s’时环境返回的奖励，$\gamma$是衰减因子，$q(s’,a’)$是下一个状态的动作值函数。用这两项的加和可以估计当前状态动作值函数的长期回报，且随着不断迭代比上一次估计更加准确。</p>
+<p>问题的关键在于$a’$如何选择，因为我们在更新当前状态动作值函数的时候并不知道在下一个状态如何选择动作。在qlearning中，选择下一个状态的最大动作值函数来进行当前状态动作值函数的估计，这种思想是没有问题的，因为最终的模型肯定以一个贪心的原则来进行动作的选择，所以当前的值函数的长期回报肯定用下一个状态的最大动作值函数来计算。可问题就在于在不断更新的过程中，值函数还未完全收敛前，如果一直用下一个状态的最大动作值函数来更新，会导致对当前动作值函数的过估计。原因如下：</p>
+<p><img src="D:\Blog\hexo\source\_posts\1.png" alt="1"></p>
+<p>因为在优化过程中会对每一个状态动作值函数进行迭代更新，所以最终我们会求得一个这样的值：<br>$$<br>E[max(f(x)+noise)]<br>$$<br>但我们想要的是：<br>$$<br>max[E(f(x)+noise)]<br>$$<br>明显第一个式子比第二个式子求得的值大，这就导致了对动作值函数的过估计问题。如果所有的动作值函数都被相同程度的过估计其实不会产生太大问题，但就是怕不同动作值函数被过估计的程度不同，则会导致模型的性能出现问题。</p>
+<p>针对过估计的问题，有人对qlearning，DQN和DDPG分别做了改进，对应的算法分别是double q learning，DDQN和TD3，接下来将一一讨论这些算法是如何优化的。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/03/valuebased/" data-id="ck3pz2e0x0004ekobgdc171pj" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2019/04/08/kaggle1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">kaggle1</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/12/03/valuebased/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/08/kaggle1/">kaggle1</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/08/stl1/">stl空间配置器理解</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/07/hi1/">hi1</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/03/hello-world/">你好呀</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

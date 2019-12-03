@@ -66,6 +66,116 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-valuebased" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/03/valuebased/" class="article-date">
+  <time datetime="2019-12-03T14:39:01.720Z" itemprop="datePublished">2019-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#对value-based的RL算法的一些看法</p>
+<p>基于值函数的强化学习方法是我接触最早的一类强化学习方法，包括q-learning，DQN或DDPG都是基于值函数的方法。这些方法的主要思路是建立模型（表格或神经网络）去拟合状态动作值函数（状态动作的长期回报），根据模型输出的值函数选择相应的动作选择或进行梯度优化。</p>
+<p>但是，value-based强化学习方法的训练优化却存在一些问题，因为这些模型的训练都是使用时间差分方法去进行更新。时间差分法（TD法）是一种结合了蒙特卡洛法和动态规划的方法，用对当前状态动作值函数的估计来更新当前的状态动作值函数。更新方式一般为：<br>$$<br>q_t(s,a)=q_{t-1}(s,a)+\alpha[q_{target}(s,a)-q_{t-1}(s,a)]<br>$$<br>其中$q_{target}(s,a)$为对当前状态动作值函数的估计，可以展开为：<br>$$<br>q_{target}(s,a)=r(s’)+\gamma q(s’,a’)<br>$$<br>其中$r(s’)$是在当前状态s下做完动作a后转移到下一个状态s’时环境返回的奖励，$\gamma$是衰减因子，$q(s’,a’)$是下一个状态的动作值函数。用这两项的加和可以估计当前状态动作值函数的长期回报，且随着不断迭代比上一次估计更加准确。</p>
+<p>问题的关键在于$a’$如何选择，因为我们在更新当前状态动作值函数的时候并不知道在下一个状态如何选择动作。在qlearning中，选择下一个状态的最大动作值函数来进行当前状态动作值函数的估计，这种思想是没有问题的，因为最终的模型肯定以一个贪心的原则来进行动作的选择，所以当前的值函数的长期回报肯定用下一个状态的最大动作值函数来计算。可问题就在于在不断更新的过程中，值函数还未完全收敛前，如果一直用下一个状态的最大动作值函数来更新，会导致对当前动作值函数的过估计。原因如下：</p>
+<p><img src="D:\Blog\hexo\source\_posts\1.png" alt="1"></p>
+<p>因为在优化过程中会对每一个状态动作值函数进行迭代更新，所以最终我们会求得一个这样的值：<br>$$<br>E[max(f(x)+noise)]<br>$$<br>但我们想要的是：<br>$$<br>max[E(f(x)+noise)]<br>$$<br>明显第一个式子比第二个式子求得的值大，这就导致了对动作值函数的过估计问题。如果所有的动作值函数都被相同程度的过估计其实不会产生太大问题，但就是怕不同动作值函数被过估计的程度不同，则会导致模型的性能出现问题。</p>
+<p>针对过估计的问题，有人对qlearning，DQN和DDPG分别做了改进，对应的算法分别是double q learning，DDQN和TD3，接下来将一一讨论这些算法是如何优化的。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/12/03/valuebased/" data-id="ck3pz2e0x0004ekobgdc171pj" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-kaggle1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/08/kaggle1/" class="article-date">
+  <time datetime="2019-04-08T12:23:15.000Z" itemprop="datePublished">2019-04-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/04/08/kaggle1/">kaggle1</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="forest-cover-type-–Use-cartographic-variables-to-classify-forest-categories"><a href="#forest-cover-type-–Use-cartographic-variables-to-classify-forest-categories" class="headerlink" title="forest cover type –Use cartographic variables to classify forest categories"></a>forest cover type –Use cartographic variables to classify forest categories</h2><p>特征包含离散变量和连续变量的分类问题</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/04/08/kaggle1/" data-id="ck3pz2e0u0002ekobycl2m85c" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-stl1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/08/stl1/" class="article-date">
+  <time datetime="2019-04-08T03:08:49.000Z" itemprop="datePublished">2019-04-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/04/08/stl1/">stl空间配置器理解</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>空间配置器alloc是一个类，类中定义了若干静态函数，供其他函数直接调用。</p>
+<p>静态函数包括：void * allocata(size_t n) 传入所需空间大小，申请空间，返回所申空间首地址。</p>
+<p>​             void deallocate(void *p , size_t n) 释放p所指空间。</p>
+<p>​            reallocate、set_malloc_handler、oom_malloc、oom_realloc等。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/04/08/stl1/" data-id="ck3pz2e0v0003ekobma3z01dn" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-hi1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/04/07/hi1/" class="article-date">
@@ -104,7 +214,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/07/hi1/" data-id="cju7rzkzd00014gobnj0okwvt" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/07/hi1/" data-id="ck3pz2e0q0001ekobx8iixzgb" class="article-share-link">Share</a>
       
       
     </footer>
@@ -149,7 +259,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/04/03/hello-world/" data-id="cju7rzkyt00004gobz77tzuqn" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/04/03/hello-world/" data-id="ck3pz2e060000ekoblqvn48rw" class="article-share-link">Share</a>
       
       
     </footer>
@@ -177,7 +287,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a></li></ul>
     </div>
   </div>
 
@@ -188,6 +298,18 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/12/03/valuebased/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/08/kaggle1/">kaggle1</a>
+          </li>
+        
+          <li>
+            <a href="/2019/04/08/stl1/">stl空间配置器理解</a>
+          </li>
         
           <li>
             <a href="/2019/04/07/hi1/">hi1</a>
